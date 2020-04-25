@@ -155,7 +155,6 @@ local function determineConnectivity(loco, exception, forcedFluidName)
 	for fluid,_ in pairs(legalFluids) do
 		local configuration = pumps[fluid]
 		if configuration then
-			game.forces.player.print("selected: " .. fluid)
 			tank_type = configuration
 			break
 		end
@@ -185,7 +184,10 @@ local function create_proxy(loco, exception)
 		}
 		if (not proxy_tank) then return -1 end
 		if tank_type > 0 then
-			proxy_tank.fluidbox.set_filter(1, { name = proxy_tank.fluidbox.get_locked_fluid(1)})
+			local locked = proxy_tank.fluidbox.get_locked_fluid(1)
+			if locked then
+				proxy_tank.fluidbox.set_filter(1, { name = locked})
+			end
 		end
 		proxy_tank.destructible = false
 		local burner_inventory = loco.burner.inventory

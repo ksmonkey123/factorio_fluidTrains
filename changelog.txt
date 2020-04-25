@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.18.2
+Date: 2020/04/26
+  Bugfixes:
+    - fixed debug message printing whenever a locomotive would stop at a pump with an active fluid system
+    - fixed bug where a locomotive stopping would cause a crash sometimes when the fluid system could not be determined
+---------------------------------------------------------------------------------------------------
 Version: 0.18.1
 Date: 2020/04/25
   Info:
