@@ -1,0 +1,7 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.18.1
+Date: 2020/04/25
+  Info:
+    - initial version migrated from the Diesel Locomotives mod
+  Bugfixes:
+    - fixed issue where a locomotive stopping at multiple pumps with different fluids was unable to create the hidden tank
