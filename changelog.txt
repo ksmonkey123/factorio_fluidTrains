@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.18.3
+Date: 2020/04/26
+  Bugfixes:
+    - fixed issue where removing a locomotive or a mod adding locomotives would crash the game if any of these locomotives were stopped
+    - fixed issue where old configurations would remain after the mod that added these configurations was removed
+    - fixed issue where deleting a stopped locomotive via scripts would crash the game
+    - fixed issue where removing a locomotive or a mod adding locomotives would cause old proxy tanks to remain if another mod uses the same tank size
+---------------------------------------------------------------------------------------------------
 Version: 0.18.2
 Date: 2020/04/26
   Bugfixes:

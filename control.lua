@@ -256,10 +256,42 @@ local function refresh_proxy(loco, exception)
 	end
 end
 
+local function forceKillProxy(uid)
+	local proxy = global.proxies[uid]
+	if proxy and proxy.tank and proxy.tank.valid then
+		proxy.tank.destroy()
+	end
+	global.proxies[uid] = nil
+end
+
+local function verifyInternalData()
+	for uid, loco in pairs(global.high_prio_loco) do
+		if not loco.valid then
+			global.high_prio_loco[uid] = nil
+			global.temperatures[uid] = nil
+			forceKillProxy(uid)
+		end
+	end
+	
+	for _,slot in pairs(global.low_prio_loco) do
+		for uid, loco in pairs(slot) do
+			if not loco.valid then
+				slot[uid] = nil
+				global.temperatures[uid] = nil
+				forceKillProxy(uid)
+			end
+		end
+	end
+end
+
 local function update_loco(loco, exception)
 --[[ If locomotive is idle, the fuel will be updated or a proxy_tank will be created
 	if the locomotive is moving, proxy_tank will be destroyed
 	Also put the locomotive to its appropriate priority ]]
+	if not loco.valid then
+		verifyInternalData()
+		return
+	end
 	if loco.train.speed == 0 then
 		local no_update_ticks = update_loco_fuel(loco)
 		if no_update_ticks == -1 then
@@ -559,11 +591,13 @@ local function ON_INIT()
 		global.low_prio_loco[i] = global.low_prio_loco[i] or {}
 	end
 	global.high_prio_loco = global.high_prio_loco or {}
-	global.generator = game.create_random_generator()
-	global.loco_tank_pair_list = global.loco_tank_pair_list or {}
-	global.fluid_map = global.fluid_map or {}
-	global.item_fluid_map = global.item_fluid_map or {}
+	global.generator = nil
+	global.loco_tank_pair_list = {}
+	global.fluid_map = {}
+	global.item_fluid_map = {}
 	global.temperatures = global.temperatures or {}
+	
+	verifyInternalData()
 end
 
 script.on_init(ON_INIT)
