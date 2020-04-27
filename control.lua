@@ -171,6 +171,12 @@ local function create_proxy(loco, exception)
 --[[ Create proxy_tank for a locomotive and inserting the proxy_tank to global.proxies 
 	if proxy_tank successfully created return 0, else return -1 ]]
 	local uid = loco.unit_number
+	
+	if not global.known_locos[uid] then
+		global.known_locos[uid] = true
+		global.tender_queue[uid % 120][uid] = loco
+	end
+	
 	local proxy = global.proxies[uid]
 	if not(proxy and proxy.tank and proxy.tank.valid) and math.floor(4 * loco.orientation) == 4 * loco.orientation then
 		local proxy_tank
@@ -282,6 +288,19 @@ local function verifyInternalData()
 			end
 		end
 	end
+	
+	for _,slot in pairs(global.tender_queue) do
+		for uid, loco in pairs(slot) do
+			if not loco.valid then
+				slot[uid] = nil
+				known_locos[uid] = nil
+			end
+		end
+	end
+end
+
+local function updateTender(uid, loco)
+	game.forces.player.print("tender update for loco " .. uid)
 end
 
 local function update_loco(loco, exception)
@@ -345,6 +364,8 @@ local function ON_BUILT(event)
 	local entity = event.created_entity
 	if global.loco_tank_pair_list[entity.name] then
 		update_loco(entity, nil)
+		global.tender_queue[entity.unit_number % 120][entity.unit_number] = entity
+		global.known_locos[entity.unit_number] = true
 	end
 	if entity.name == "pump" then
 		local locos = entity.surface.find_entities_filtered{
@@ -367,6 +388,7 @@ local function ON_DESTROYED(event)
 	local entity = event.entity 
 	if global.loco_tank_pair_list[entity.name] then
 		destroy_proxy(entity)
+		global.known_locos[entity.unit_number] = nil
 	end
 	if entity.name == "pump" then
 		local locos = entity.surface.find_entities_filtered{
@@ -412,6 +434,15 @@ local function ON_TICK(event)
 	end
 	for _,t in pairs(train_ridden()) do
 		update_train(t)
+	end
+	
+	local tenders = global.tender_queue[event.tick % 120 + 1]
+	for uid, loco in pairs(tenders) do
+		if not loco.valid then
+			tenders[uid] = nil
+		else
+			updateTender(uid, loco)
+		end
 	end
 end
 
@@ -590,12 +621,17 @@ local function ON_INIT()
 	for i=1,SLOW_UPDATE_TICK do
 		global.low_prio_loco[i] = global.low_prio_loco[i] or {}
 	end
+	global.tender_queue = global.tender_queue or {}
+	for i=1,120 do
+		global.tender_queue[i] = global.tender_queue[i] or {}
+	end
 	global.high_prio_loco = global.high_prio_loco or {}
 	global.generator = nil
 	global.loco_tank_pair_list = {}
 	global.fluid_map = {}
 	global.item_fluid_map = {}
 	global.temperatures = global.temperatures or {}
+	global.known_locos = global.known_locos or {}
 	
 	verifyInternalData()
 end
