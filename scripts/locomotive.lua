@@ -46,4 +46,32 @@ function public.update_loco_fuel(loco)
 	end
 end
 
+function public.getFluidDemand(loco)
+	if global.proxies[loco.unit_number] then
+		return nil
+	end
+	
+	local fluid = nil
+	local burner_inventory = loco.burner.inventory
+	if burner_inventory[1] and burner_inventory[1].valid_for_read then
+		fluid = fuel.reconstructFluid(loco.unit_number, burner_inventory[1])
+	end
+	
+	if not fluid then
+		return nil
+	end
+	
+	local amount = global.loco_sizes[loco.prototype.name] - fluid.amount
+	
+	if amount > 0 then
+		return {
+			name = fluid.name,
+			amount = amount,
+			minimum_temperature = fluid.temperature
+		}
+	else
+		return nil
+	end
+end
+
 return public

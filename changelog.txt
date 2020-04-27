@@ -3,6 +3,7 @@ Version: 0.18.4
 Date: 2020/04/27
   Changes:
     - modularised code base for better maintainability
+    - added experimental support for tenders: locomotives can draw fluids from a directly attached fluid wagon (feature configurable per locomotive)
 ---------------------------------------------------------------------------------------------------
 Version: 0.18.3
 Date: 2020/04/26

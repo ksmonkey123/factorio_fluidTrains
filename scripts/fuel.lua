@@ -32,6 +32,14 @@ function public.determineItemForFluid(fluid, fuel_category)
 	return nil
 end
 
+function public.convertFluidToItem(fluid, fuel_category)
+	local item = public.determineItemForFluid(fluid, fuel_category)
+	return {
+		name = item[1],
+		count = round(fluid.amount / item[3])
+	}
+end
+
 function public.getBurnerFuelCategory(burner)
 	local categories = burner.fuel_categories
 	for k,v in pairs(categories) do
@@ -41,6 +49,5 @@ function public.getBurnerFuelCategory(burner)
 	end
 	return nil
 end
-
 
 return public

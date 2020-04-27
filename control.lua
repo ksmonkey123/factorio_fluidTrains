@@ -4,6 +4,7 @@ require("stdlib.util")
 local proxy = require("scripts.proxy")
 local fuel = require("scripts.fuel")
 local locomotive = require("scripts.locomotive")
+local tender = require("scripts.tender")
 
 local function prioritize(loco)
 --[[ Give locomotive priority so that it updates on every tick ]]
@@ -42,10 +43,6 @@ local function verifyInternalData()
 			end
 		end
 	end
-end
-
-local function updateTender(uid, loco)
-	game.forces.player.print("tender update for loco " .. uid)
 end
 
 local function update_loco(loco, exception)
@@ -109,7 +106,7 @@ local function ON_BUILT(event)
 	local entity = event.created_entity
 	if global.loco_tank_pair_list[entity.name] then
 		update_loco(entity, nil)
-		global.tender_queue[entity.unit_number % 120][entity.unit_number] = entity
+		global.tender_queue[entity.unit_number % TENDER_UPDATE_TICK][entity.unit_number] = entity
 		global.known_locos[entity.unit_number] = true
 	end
 	if entity.name == "pump" then
@@ -181,12 +178,19 @@ local function ON_TICK(event)
 		update_train(t)
 	end
 	
-	local tenders = global.tender_queue[event.tick % 120 + 1]
+	local tenders = global.tender_queue[event.tick % TENDER_UPDATE_TICK + 1]
+	local tenderSettings = nil
 	for uid, loco in pairs(tenders) do
 		if not loco.valid then
 			tenders[uid] = nil
 		else
-			updateTender(uid, loco)
+			if not tenderSettings then
+				tenderSettings = settings.global["fluidTrains_enable_tender"].value
+				if tenderSettings == "never" then
+					return
+				end
+			end
+			tender.update(uid, loco, tenderSettings)
 		end
 	end
 end
@@ -295,13 +299,19 @@ script.on_event({defines.events.on_train_changed_state}, ON_TRAIN_CHANGED_STATE)
 script.on_event({defines.events.on_player_cursor_stack_changed}, ON_PLAYER_CURSOR_STACK_CHANGED)
 script.on_event({defines.events.on_player_main_inventory_changed}, ON_PLAYER_MAIN_INVENTORY_CHANGED)
 
-local function addLocomotive(locoName, tankSize)
+local function addLocomotive(locoName, tankSize, options)
 	-- TODO: verify tank size
 	if (game.entity_prototypes["fluidTrains-proxy-tank-"..tankSize.."-0"]) then
 		global.loco_tank_pair_list[locoName] = "fluidTrains-proxy-tank-"..tankSize.."-"
+		global.loco_sizes[locoName] = tankSize
 	else
 		error("unsupported tank size: "..tankSize)
 	end
+	
+	if options then
+		global.loco_options[locoName] = options
+	end
+	
 end
 
 local function addFluid(fuelCategory, fluidName, itemConfigs)
@@ -335,8 +345,11 @@ end
 
 local function dumpConfig()
 	game.forces.player.print("locomotives: ")
-	for k,v in pairs(global.loco_tank_pair_list) do
+	for k,v in pairs(global.loco_sizes) do
 		game.forces.player.print(" - "..k..": "..v)
+		if global.loco_options[k] then
+			game.forces.player.print(serpent.block(global.loco_options[k]))
+		end
 	end
 	for category, entry in pairs(global.fluid_map) do
 		game.forces.player.print("fluidCategory: "..category)
@@ -367,7 +380,7 @@ local function ON_INIT()
 		global.low_prio_loco[i] = global.low_prio_loco[i] or {}
 	end
 	global.tender_queue = global.tender_queue or {}
-	for i=1,120 do
+	for i=1,TENDER_UPDATE_TICK do
 		global.tender_queue[i] = global.tender_queue[i] or {}
 	end
 	global.high_prio_loco = global.high_prio_loco or {}
@@ -377,6 +390,8 @@ local function ON_INIT()
 	global.item_fluid_map = {}
 	global.temperatures = global.temperatures or {}
 	global.known_locos = global.known_locos or {}
+	global.loco_sizes = {}
+	global.loco_options = {}
 	
 	verifyInternalData()
 end
