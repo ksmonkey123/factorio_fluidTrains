@@ -42,7 +42,7 @@ local function findTenderWagon(loco_uid, train)
 		
 		if not blockMembers[candidate.unit_number] then
 			if candidate.prototype.type == "fluid-wagon" then
-				return candidate
+				return {candidate}
 			else
 				return nil
 			end
@@ -50,8 +50,10 @@ local function findTenderWagon(loco_uid, train)
 	end
 end
 
-local function supportsTenders(loco, defaultSettings)
+local function supportsTenders(loco, tenderSettings)
 	local options = global.loco_options[loco.prototype.name]
+	
+	local defaultSettings = tenderSettings.tender
 	
 	if defaultSettings == "always" then
 		return true
@@ -64,8 +66,8 @@ local function supportsTenders(loco, defaultSettings)
 	end
 end
 
-function public.update(unit_number, loco, defaultSettings)
-	if not supportsTenders(loco, defaultSettings) then
+function public.update(unit_number, loco, tenderSettings)
+	if not supportsTenders(loco, tenderSettings) then
 		return
 	end
 
@@ -73,13 +75,31 @@ function public.update(unit_number, loco, defaultSettings)
 	if not demand then
 		return
 	end
+	if demand.amount < tenderSettings.threshold then
+		return
+	end
+		
+	local entities
+	if tenderSettings.mode == "local" then
+		entities = findTenderWagon(unit_number, loco.train)
+	else
+		entities = loco.train.fluid_wagons
+	end
 	
-	local tender = findTenderWagon(unit_number, loco.train)
-	if not tender then
+	if not entities or #entities == 0 then
 		return
 	end
 	
-	local amount = tender.remove_fluid(demand)
+	local amount = 0
+	for _,entity in pairs(entities) do
+		local localAmount = entity.remove_fluid(demand)
+		demand.amount = demand.amount - localAmount
+		amount = amount + localAmount
+		if demand.amount <= 0 then
+			break
+		end
+	end
+	
 	if amount == 0 then
 		return
 	end

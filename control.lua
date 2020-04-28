@@ -164,6 +164,12 @@ local function ON_PRE_PLAYER_MINED_ITEM(event)
 	end
 end
 
+local function readSettings(sets)
+	sets.tender = settings.global["fluidTrains_enable_tender"].value
+	sets.mode = settings.global["fluidTrains_tender_mode"].value
+	sets.threshold = settings.global["fluidTrains_tender_threshold"].value
+end	
+
 local function ON_TICK(event)
 --[[ Handler for every tick ]]
 	if TICK_UPDATE then
@@ -185,8 +191,9 @@ local function ON_TICK(event)
 			tenders[uid] = nil
 		else
 			if not tenderSettings then
-				tenderSettings = settings.global["fluidTrains_enable_tender"].value
-				if tenderSettings == "never" then
+				tenderSettings = {}
+				readSettings(tenderSettings)
+				if tenderSettings.tender == "never" then
 					return
 				end
 			end
