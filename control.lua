@@ -333,7 +333,7 @@ local function addFluid(fuelCategory, fluidName, itemConfigs)
 	categoryMap[fluidName] = items
 	global.fluid_map[fuelCategory] = categoryMap
 	for _,item in pairs(items) do
-		global.item_fluid_map[item[1]] = {fluidName, item[3]}
+		global.item_fluid_map[item[1]] = {fluidName, item[3], item[2]}
 	end
 end
 

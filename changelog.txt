@@ -1,9 +1,11 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.18.4
-Date: 2020/04/27
+Date: 2020/04/28
   Changes:
     - modularised code base for better maintainability
     - added experimental support for tenders: locomotives can draw fluids from a directly attached fluid wagon (feature configurable per locomotive)
+  Bugfixes:
+    - fixed issue where sometimes migrated locomotives without stored fluid temperature may crash the game
 ---------------------------------------------------------------------------------------------------
 Version: 0.18.3
 Date: 2020/04/26
