@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.18.5
+Date: 2020/05/04
+  Changes:
+    - changed the way proxy tank prototypes are generated to improve resilience against interference from mods changing item stack sizes
+  Bugfixes:
+    - fixed issue where removing a mod adding locomotives would sometimes crash the game on load
+---------------------------------------------------------------------------------------------------
 Version: 0.18.4
 Date: 2020/04/28
   Changes:

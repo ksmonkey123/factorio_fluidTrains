@@ -1,16 +1,7 @@
-require("config")
+local public = {}
 
-local tankSizes = {}
-for k,v in pairs(data.raw.item) do
-	if (v.group == "fluidTrains_fake") then
-		tankSizes[v.stack_size] = v.stack_size
-		v.stack_size = 4294967295
-	end
-end
-
--- Fluid tanks
-local function generateTanks(size, tanks)
-for i=0,63 do
+function public.generateTank(size)
+  for i=0,63 do
 	local pipe_connections = {}
 
 	if i%64 >= 32 then
@@ -120,16 +111,9 @@ for i=0,63 do
 	proxy_tank.circuit_wire_max_distance = 0
 	proxy_tank.localised_name = "Hidden"
 	proxy_tank.order = "proxy-tank-"..size.."-"..i
-
-	table.insert(tanks, proxy_tank)
-end
-end
-
-local tanks = {}
-for _,size in pairs(tankSizes) do
-	generateTanks(size, tanks)
+	
+	data:extend({proxy_tank})
+  end
 end
 
-if #tanks > 0 then
-	data:extend(tanks)
-end
+return public

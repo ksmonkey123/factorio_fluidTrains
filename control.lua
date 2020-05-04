@@ -21,7 +21,7 @@ local function verifyInternalData()
 		if not loco.valid then
 			global.high_prio_loco[uid] = nil
 			global.temperatures[uid] = nil
-			forceKillProxy(uid)
+			proxy.forceKillProxy(uid)
 		end
 	end
 	
@@ -30,7 +30,7 @@ local function verifyInternalData()
 			if not loco.valid then
 				slot[uid] = nil
 				global.temperatures[uid] = nil
-				forceKillProxy(uid)
+				proxy.forceKillProxy(uid)
 			end
 		end
 	end
@@ -39,7 +39,7 @@ local function verifyInternalData()
 		for uid, loco in pairs(slot) do
 			if not loco.valid then
 				slot[uid] = nil
-				known_locos[uid] = nil
+				global.known_locos[uid] = nil
 			end
 		end
 	end
