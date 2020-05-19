@@ -106,7 +106,7 @@ local function ON_BUILT(event)
 	local entity = event.created_entity
 	if global.loco_tank_pair_list[entity.name] then
 		update_loco(entity, nil)
-		global.tender_queue[entity.unit_number % TENDER_UPDATE_TICK][entity.unit_number] = entity
+		global.tender_queue[entity.unit_number % TENDER_UPDATE_TICK+1][entity.unit_number] = entity
 		global.known_locos[entity.unit_number] = true
 	end
 	if entity.name == "pump" then
