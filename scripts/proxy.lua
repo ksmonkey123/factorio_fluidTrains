@@ -90,7 +90,7 @@ function public.create_proxy(loco, exception)
 	
 	if not global.known_locos[uid] then
 		global.known_locos[uid] = true
-		global.tender_queue[uid % 120][uid] = loco
+		global.tender_queue[uid % TENDER_UPDATE_TICK+1][uid] = loco
 	end
 	
 	local proxy = global.proxies[uid]
