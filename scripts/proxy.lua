@@ -57,7 +57,11 @@ local function determineConnectivity(loco, exception, forcedFluidName)
 			)
 		}
 		if found_pumps[1] and not(found_pumps[1].unit_number == exception) then
-			local systemFluid = found_pumps[1].fluidbox.get_locked_fluid(1)
+			local pumpFluid = found_pumps[1].fluidbox[1]
+			local systemFluid = nil
+			if pumpFluid then
+				systemFluid = pumpFluid.name
+			end
 			if systemFluid then
 				if legalFluids[systemFluid] then
 					pumps[systemFluid] = (pumps[systemFluid] or 0) + 2^(j-1)
