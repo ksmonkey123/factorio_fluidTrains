@@ -49,7 +49,7 @@ local function determineConnectivity(loco, exception, forcedFluidName)
 	
 	for j = 1, 6 do
 		local found_pumps = loco.surface.find_entities_filtered{
-			name = "pump",
+			type = "pump",
 			position = moveposition(
 				{x = round(loco.position.x),y = round(loco.position.y)},
 				ori_to_dir(loco.orientation),
