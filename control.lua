@@ -24,7 +24,7 @@ local function verifyInternalData()
 			proxy.forceKillProxy(uid)
 		end
 	end
-	
+
 	for _,slot in pairs(global.low_prio_loco) do
 		for uid, loco in pairs(slot) do
 			if not loco.valid then
@@ -34,7 +34,7 @@ local function verifyInternalData()
 			end
 		end
 	end
-	
+
 	for _,slot in pairs(global.tender_queue) do
 		for uid, loco in pairs(slot) do
 			if not loco.valid then
@@ -74,7 +74,7 @@ local function train_ridden()
 		if (
 			p.vehicle and
 			(
-				p.vehicle.type == "fluid-wagon" or 
+				p.vehicle.type == "fluid-wagon" or
 				p.vehicle.type == "cargo-wagon" or
 				p.vehicle.type == "locomotive" or
 				p.vehicle.type == "artillery-wagon"
@@ -103,7 +103,7 @@ end
 
 local function ON_BUILT(event)
 --[[ Handler for when entity is built ]]
-	local entity = event.created_entity
+	local entity = event.created_entity or event.entity
 	if global.loco_tank_pair_list[entity.name] then
 		update_loco(entity, nil)
 		global.tender_queue[entity.unit_number % TENDER_UPDATE_TICK+1][entity.unit_number] = entity
@@ -127,7 +127,7 @@ end
 
 local function ON_DESTROYED(event)
 --[[ Handler for when entity is destroyed ]]
-	local entity = event.entity 
+	local entity = event.entity
 	if global.loco_tank_pair_list[entity.name] then
 		proxy.destroy_proxy(entity)
 		global.known_locos[entity.unit_number] = nil
@@ -168,7 +168,7 @@ local function readSettings(sets)
 	sets.tender = settings.global["fluidTrains_enable_tender"].value
 	sets.mode = settings.global["fluidTrains_tender_mode"].value
 	sets.threshold = settings.global["fluidTrains_tender_threshold"].value
-end	
+end
 
 local function ON_TICK(event)
 --[[ Handler for every tick ]]
@@ -183,7 +183,7 @@ local function ON_TICK(event)
 	for _,t in pairs(train_ridden()) do
 		update_train(t)
 	end
-	
+
 	local tenders = global.tender_queue[event.tick % TENDER_UPDATE_TICK + 1]
 	local tenderSettings = nil
 	for uid, loco in pairs(tenders) do
@@ -314,11 +314,11 @@ local function addLocomotive(locoName, tankSize, options)
 	else
 		error("unsupported tank size: "..tankSize)
 	end
-	
+
 	if options then
 		global.loco_options[locoName] = options
 	end
-	
+
 end
 
 local function addFluid(fuelCategory, fluidName, itemConfigs)
@@ -399,7 +399,7 @@ local function ON_INIT()
 	global.known_locos = global.known_locos or {}
 	global.loco_sizes = {}
 	global.loco_options = {}
-	
+
 	verifyInternalData()
 end
 
