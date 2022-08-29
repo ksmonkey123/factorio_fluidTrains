@@ -297,8 +297,8 @@ local function ON_PLAYER_ROTATED_ENTITY(event)
 	end
 end
 
-script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity}, ON_BUILT)
-script.on_event({defines.events.on_player_mined_entity, defines.events.on_entity_died, defines.events.on_robot_mined_entity}, ON_DESTROYED)
+script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity, defines.events.script_raised_built, defines.events.script_raised_revive}, ON_BUILT)
+script.on_event({defines.events.on_player_mined_entity, defines.events.on_entity_died, defines.events.on_robot_mined_entity, defines.events.script_raised_destroy}, ON_DESTROYED)
 script.on_event({defines.events.on_pre_player_mined_item, defines.events.on_robot_pre_mined}, ON_PRE_PLAYER_MINED_ITEM)
 script.on_event({defines.events.on_player_rotated_entity}, ON_PLAYER_ROTATED_ENTITY)
 script.on_event({defines.events.on_tick}, ON_TICK)
